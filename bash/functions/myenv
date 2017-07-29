@@ -1,0 +1,27 @@
+# vim: filetype=sh
+
+export MYENV=$HOME/.myenv
+[[ -f $MYENV ]] || touch "$MYENV"
+
+# myenv [-q|-e]
+#
+# source and maybe edit my local machine environment file
+function myenv() {
+  local -r cmd=myenv
+  local opt
+  local -a passthru_opts=()
+  for opt in "$@"; do
+    case $opt in
+      (-q|-e) passthru_opts+=($opt) ;;
+      (-h|--help)
+        echo "USAGE: $cmd [-e|-q]"
+        return 0
+        ;;
+      (*)
+        echo >&2 "$cmd: invalid argument: $opt"
+        return 1
+        ;;
+    esac
+  done
+  _env_update "${passthru_opts[@]}" -- $MYENV
+}

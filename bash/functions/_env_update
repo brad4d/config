@@ -1,0 +1,71 @@
+# vim: filetype=sh
+# _env_update [-e|-q] file...
+#
+# source the given file(s) in the current shell session
+# By default the files' contents are also written to stdout
+# -q = do not echo the file contents
+# -e = edit the file(s) first and do not echo afterwards
+#
+function _env_update() {
+  local -r cmd=_env_update
+  local edit_file=0
+  local cat_file=1
+  local opt
+  local all_opts_parsed=0
+  while (( ! all_opts_parsed )); do
+    opt=${1:-}
+    case $opt in
+      (-q)
+        cat_file=0
+        shift
+        ;;
+      (-e)
+        edit_file=1
+        shift
+        if [[ ! -v EDITOR ]]; then
+          echo >&2 "$cmd: EDITOR not defined"
+          return 1
+        fi
+        ;;
+      (-h|--help)
+        echo "USAGE: $cmd [-q|-e] file..."
+        return 0
+        ;;
+      (--) # end of options marker
+        shift
+        all_opts_parsed=1
+        ;;
+      (-*)
+        echo >&2 "$cmd: unknown option: $opt"
+        return 1
+        ;;
+      (*) # first non-option
+        all_opts_parsed=1
+        ;;
+    esac
+  done
+  if (( $# < 1 )); then
+    echo >&2 "$cmd: no files specified"
+    return 1
+  fi
+
+  local f
+  for f in "$@"; do
+    # get full file path and also confirm that the file exists
+    # this avoids two problems
+    # 1. filenames that start with '-' can confuse commands
+    # 2. avoid searching of $PATH done by the source command
+    f=$(realpath -- $f) || return $?
+    if (( edit_file )); then
+      $EDITOR "$f"
+      if (( $? )); then
+        echo >&2 "$cmd: editing failed: $f"
+        return 1
+      fi
+    fi
+    source "$f"
+    if (( cat_file )); then
+      cat "$f"
+    fi
+  done
+}
