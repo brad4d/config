@@ -1,0 +1,8 @@
+# vim: filetype=sh
+
+function pathmerge() {
+  printf '%s\n' "$@" \
+    | tr ':' '\n' \
+    | awk '!seen[$0] { print; seen[$0] = 1; }' \
+    | paste -s -d:
+}

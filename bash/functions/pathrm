@@ -1,0 +1,9 @@
+# vim: filetype=sh
+
+function pathrm() {
+  local origpath=$1
+  local rmpath=$2
+  tr ':' '\n' <<<"$origpath" \
+    | grep  -v -F -x "$rmpath" \
+    | paste -s -d:
+}

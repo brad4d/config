@@ -27,9 +27,12 @@ function source_dirfiles() {
     return 1
   fi
   local f
-  for f in $(find $d -maxdepth 1 -type f); do
+  # Get the files in $d that do not start with a '.'
+  for f in $(find "$d" -maxdepth 1 -type f \! -name '.*'); do
     source $f
   done
 }
 
 source_dirfiles $B4D_CONFIG/bash/functions
+
+export PATH=$(pathmerge $HOME/bin $PATH)
