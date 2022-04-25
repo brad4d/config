@@ -33,6 +33,11 @@ function source_dirfiles() {
   done
 }
 
+# includes definitions of
+# * pathmerge
+# * myenv
 source_dirfiles $B4D_CONFIG/bash/functions
 
 export PATH=$(pathmerge $HOME/bin $PATH)
+export EDITOR=vim
+myenv -q

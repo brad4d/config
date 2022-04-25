@@ -1,0 +1,3 @@
+# vim: filetype=sh
+
+alias ds='dirs -v'
