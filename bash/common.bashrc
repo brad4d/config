@@ -1,8 +1,8 @@
 # vim: filetype=sh
 # Bradford's standard bash setup
 # ~/.bashrc should have:
-#   export B4D_CONFIG=src/config
-#   . $B4D_CONFIG/bash/common.bashrc
+#   export B4D_CONFIG=$HOME/src/config
+#   source $B4D_CONFIG/bash/common.bashrc
 
 if [[ ! -v B4D_CONFIG ]]; then
   echo "B4D_CONFIG is not defined" >&2
