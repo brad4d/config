@@ -39,5 +39,4 @@ function source_dirfiles() {
 source_dirfiles $B4D_CONFIG/bash/functions
 
 export PATH=$(pathmerge $HOME/bin $PATH)
-export EDITOR=vim
 myenv -q
