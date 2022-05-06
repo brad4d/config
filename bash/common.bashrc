@@ -1,4 +1,4 @@
-# vim: filetype=sh
+# vi: set filetype=sh sw=2 ts=2 et:
 # Bradford's standard bash setup
 # ~/.bashrc should have:
 #   export B4D_CONFIG=$HOME/src/config
@@ -37,6 +37,48 @@ function source_dirfiles() {
 # * pathmerge
 # * myenv
 source_dirfiles $B4D_CONFIG/bash/functions
+myenv -q
 
 export PATH=$(pathmerge $HOME/bin $PATH)
-myenv -q
+
+# This method for setting debian_root is copied from the default .bashrc
+# supplied by debian Linux and its derivatives.
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# I want to use some fancy logic for creating the value for the prompt,
+# but I don't want to create a function to be called just once.
+PS1=$(
+  # This method for coloring the prompt is adapted from the standard .bashrc
+  # supplied by debian Linux and its derivatives
+
+  if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    # We have color support; assume it's compliant with Ecma-48
+    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+    # a case would tend to support setf rather than setaf.)
+
+    # Escape sequence to set color for user / system text
+    # bold/bright (01) green (32)
+    cuseron='\[\e[01;32m\]'
+    # Escape sequence to set color for current directory text
+    # bold/bright (01) blue (32)
+    cdiron='\[\e[01;34m\]'
+    # Escape sequence to set normal text color
+    # normal (22) black (30)
+    #coff='\[\e[22;30m\]'
+    coff='\[\e[01;00m\]'
+  else
+    cuseron=
+    cdiron=
+    coff=
+  fi
+
+  cat <<_EOF_
+# ======================================================================
+# $cuseron\u@\h$coff  \D{%A %Y-%m-%d %H:%M:%S}
+# \${debian_chroot:+(\$debian_chroot)}$cdiron\w$coff
+\\$ 
+_EOF_
+)
