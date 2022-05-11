@@ -25,6 +25,8 @@ while getopts '' flag "$@"; do
 done
 shift $((OPTIND - 1))
 
+(( $# > 0 )) || usage_exit 'missing SCRIPT_PATH argument\n'
+
 readonly SCRIPT_PATH=$1
 shift
 
