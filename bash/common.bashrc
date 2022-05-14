@@ -39,7 +39,7 @@ function source_dirfiles() {
 source_dirfiles $B4D_CONFIG/bash/functions
 myenv -q
 
-export PATH=$(pathmerge $HOME/bin $PATH)
+export PATH=$(pathmerge $HOME/bin $HOME/.local/bin $PATH)
 
 # This method for setting debian_root is copied from the default .bashrc
 # supplied by debian Linux and its derivatives.
