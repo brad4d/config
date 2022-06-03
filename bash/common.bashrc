@@ -91,11 +91,16 @@ cmd_exists() {
 
 declare editor
 for editor in nvim vim vi ed; do
-  cmd_exists $editor && break
+  if cmd_exists $editor; then
+    echo $editor
+    exit 0
+  fi
 done
 
-cmd_exists $editor \
-  || printf >&2 'common.bashrc: no editor found: using %q\n' $editor
+printf >&2 'common.bashrc: no editor found: using %q\n' $editor
+echo $editor
+exit 1
+)
 
 export EDITOR=$VISUAL
 alias bed="$EDITOR"
