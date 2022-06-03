@@ -89,6 +89,7 @@ cmd_exists() {
   type $1 >&/dev/null
 }
 
+declare editor
 for editor in nvim vim vi ed; do
   cmd_exists $editor && break
 done
@@ -96,14 +97,5 @@ done
 cmd_exists $editor \
   || printf >&2 'common.bashrc: no editor found: using %q\n' $editor
 
-if [[ $editor = nvim ]] \
-  && cmd_exists nvr \
-  && [[ -n ${NVIM_LISTEN_ADDRESS:-} ]]; then
-  # Use the already running nvim instance to edit.
-  # Block until the opened buffer is deleted
-  editor='nvr --remote-tab-wait'
-fi
-echo "$editor"
-)
 export EDITOR=$VISUAL
 alias bed="$EDITOR"
