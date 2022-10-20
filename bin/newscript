@@ -2,37 +2,24 @@
 
 usage_exit() {
   cat <<_eof_
-USAGE: $PROGNAME SCRIPT_PATH
+USAGE: $(basename $0) [--gawk] SCRIPT_PATH
+
+--gawk = Use a gawk template instead of a bash one
 
 Create a new script at the given path and start editing it.
 _eof_
-  printf '====\n'
-  err_exit "$@"
+  if (($# == 0)); then
+    # user asked for usage information
+    exit 0
+  else
+    # error message was supplied
+    printf '====\n'
+    err_exit "$@"
+  fi
 }
-
-readonly PROGNAME=$(basename $0)
-
-err_exit() {
-  printf "$@"
-  exit 1
-}
-
-declare flag
-while getopts '' flag "$@"; do
-  case $flag in
-    (*) usage_exit 'unrecognized flag: %q\n' "$flag" ;;
-  esac
-done
-shift $((OPTIND - 1))
-
-(( $# > 0 )) || usage_exit 'missing SCRIPT_PATH argument\n'
-
-readonly SCRIPT_PATH=$1
-shift
-
-(( $# == 0 )) || usage_exit 'unexpected argument: %q\n' "$@"
 
 main() {
+
   if [[ -e $SCRIPT_PATH ]]; then
     err_exit '%q already exists\n' "$SCRIPT_PATH"
   fi
@@ -40,6 +27,46 @@ main() {
   ${EDITOR:-vim} "$SCRIPT_PATH"
 }
 
-readonly TEMPLATE_PATH=$HOME/lib/newscript/template.sh
+setup() {
+  local template_extension=sh
 
+  while (($# > 0)); do
+    case $1 in
+      (-h) usage_exit ;;
+      (--help) usage_exit ;;
+      (--gawk)
+        template_extension=gawk
+        shift
+        ;;
+      (--)
+        # drop the '--' argument
+        shift
+        break
+        ;;
+      (-*)
+        usage_exit 'unknown option: %q\n' "$1"
+        ;;
+      (*)
+        # leave the remaining non-option arguments
+        break
+        ;;
+    esac
+  done
+  (($# > 0)) || usage_exit 'missing SCRIPT_PATH argument\n'
+
+  readonly SCRIPT_PATH=$1
+  shift
+
+  (( $# == 0 )) || usage_exit 'unexpected argument: %q\n' "$@"
+
+  readonly TEMPLATE_DIR=$HOME/lib/newscript
+  readonly TEMPLATE_PATH=$TEMPLATE_DIR/template.$template_extension
+}
+
+err_exit() {
+  printf "$@"
+  exit 1
+}
+
+setup "$@"
 main

@@ -2,7 +2,7 @@
 
 usage_exit() {
   cat <<_eof_
-USAGE: $PROGNAME
+USAGE: $(basename $0)
 
 Install Bradford's standard scripts and other config stuff.
 _eof_
@@ -10,27 +10,9 @@ _eof_
   err_exit "$@"
 }
 
-readonly PROGNAME=$(basename $0)
-readonly PROGDIR=$(dirname $0)
-
-err_exit() {
-  printf "$@"
-  exit 1
-}
-
-declare flag
-while getopts '' flag "$@"; do
-  case $flag in
-    (*) usage_exit 'unrecognized flag: %q\n' "$flag" ;;
-  esac
-done
-shift $((OPTIND - 1))
-
-(( $# == 0 )) || usage_exit 'unexpected argument: %q\n' "$@"
-
-cd $(dirname $0)
-
 main() {
+  cd $(dirname $0)
+
   local f
 
   install_file inputrc "$HOME/.inputrc"
@@ -42,12 +24,48 @@ main() {
 install_file() {
   local -r src=$1
   local -r dst=$2
-  if [[ -e $dst ]]; then
-    printf '%q: already exists\n' "$dst"
-  else
-    printf 'installing %q as %q\n' "$src" "$dst"
-    install -D "$src" "$dst"
+  if should_install "$src" "$dst"; then
+    install -v -D "$src" "$dst"
   fi
 }
 
+should_install() {
+  local -r src=$1
+  local -r dst=$2
+
+  if ! [[ -e $dst ]]; then
+    return 0
+  fi
+
+  printf '%q: already exists\n' "$dst"
+  if diff -u "$dst" "$src"; then
+    printf '...and the contents are the same.\n'
+    # no need to install
+    return 1
+  fi
+
+  printf 'Overwrite file %q?\n' "$dst"
+  local -l answer
+  read -r -p '[y|N]? ' answer
+  [[ $answer = y ]]
+}
+
+setup() {
+  local flag
+  while getopts '' flag "$@"; do
+    case $flag in
+      (*) usage_exit 'unrecognized flag: %q\n' "$flag" ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  (( $# == 0 )) || usage_exit 'unexpected argument: %q\n' "$@"
+}
+
+err_exit() {
+  printf "$@"
+  exit 1
+}
+
+setup "$@"
 main
