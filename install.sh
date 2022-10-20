@@ -18,6 +18,7 @@ main() {
   install_file inputrc "$HOME/.inputrc"
 
   f=lib/newscript/template.sh ; install_file $f $HOME/$f
+  f=lib/newscript/template.gawk ; install_file $f $HOME/$f
   f=bin/newscript ; install_file $f $HOME/$f
 }
 
