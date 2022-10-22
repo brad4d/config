@@ -7,16 +7,16 @@ BEGIN {
 		print "Eligu la kalkulojn en malkreskanta ordo."
 		exit 1
 	}
+  # each character in the line is a separate field
+  FS = ""
   tutkalkulo = 0
 }
 
 {
-	linio = $0
   tutkalkulo++
 	delete cxuVidita
-	n = length(linio)
-	for (i = 1; i <= n; ++i) {
-		signo = substr(linio, i, 1)
+	for (i = 1; i <= NF; ++i) {
+		signo = $i
 		if (! cxuVidita[signo]) {
 			cxuVidita[signo] = 1
 			kalkulo[signo]++
