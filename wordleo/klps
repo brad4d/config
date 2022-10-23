@@ -9,11 +9,9 @@ BEGIN {
 	}
   # each character in the line is a separate field
   FS = ""
-  tutkalkulo = 0
 }
 
 {
-  tutkalkulo++
 	delete cxuVidita
 	for (i = 1; i <= NF; ++i) {
 		signo = $i
@@ -30,7 +28,7 @@ END {
 	# PROCINFO["sorted_in"] = "@val_num_desc"
 	for (signo in kalkulo) {
     n = kalkulo[signo]
-    pc = 100.0 * n / tutkalkulo
+    pc = 100.0 * n / NR
 		printf "%8d %5.2f %s\n", n, pc, signo | "sort -rn"
 	}
 }
