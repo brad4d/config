@@ -10,7 +10,7 @@ import (
 
 func main() {
   linesCh := startReadLinesFromFileArgs(os.Args[1:])
-  totalLines := 1
+  totalLines := 0
   rune2NumLines := make(map[rune]int)
   for line := range linesCh {
     totalLines += 1
@@ -21,8 +21,6 @@ func main() {
       }
     }
   }
-
-  fmt.Printf("len(rune2NumLines) = %d\n", len(rune2NumLines))
 
   runeSlice := makeSliceOfKeys(rune2NumLines)
 
