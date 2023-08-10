@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+#
+# Convert a timestamped YouTube transcript into a rough SRT subtitle file
+
+use strict 'vars';
+
+my ($i, $startTs, $tmpTs) = (1, '00:00:00,000');
+my @textLines = ();
+
+while (<>) {
+  if (m{^(\d{1,}:)?(\d{1,2}):(\d{2})\s*$}) {
+    $tmpTs = sprintf("%02d:%02d:%02d,000", $1, $2, $3);
+    if (@textLines) {
+      printCaption($i++, $startTs, $tmpTs, \@textLines);
+    }
+    $startTs = $tmpTs;
+    @textLines = ();
+  } else {
+    push(@textLines, $_);
+  }
+}
+
+sub printCaption {
+  my ($i, $startTs, $endTs, $textlinesRef) = @_;
+  printf("%d\n%s --> %s\n", $i, $startTs, $endTs);
+  foreach ( @$textlinesRef ) {
+    print;
+  }
+  print "\n";
+}
+
+END {
+  if (@textLines) {
+    printCaption($i++, $startTs, $startTs, \@textLines);
+  }
+}
