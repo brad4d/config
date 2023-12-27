@@ -5,6 +5,7 @@ usage_exit() {
 USAGE: $(basename $0) [TSV_FILE...]
 
 Write to stdout the contents of the input TSV files formatted in Markdown.
+The first row will be formatted as the header.
 _eof_
   if (($# == 0)); then
     # user asked for usage information
@@ -17,7 +18,7 @@ _eof_
 }
 
 main() {
-  gawk '
+  gawk -F'	' '
 {
   maxFields = max(maxFields, NF)
   for (i = 1; i <= NF; ++i) {
@@ -29,13 +30,12 @@ main() {
 
 END {
   for (i = 1; i <= maxFields; ++i) {
-    header[i] = ""
     divider[i] = createDivider(maxWidth[i])
   }
-  printRecord(header)
+  printRecord(records[1])
   printRecord(divider)
   numRecords = length(records)
-  for (i = 1; i <= numRecords; ++i) {
+  for (i = 2; i <= numRecords; ++i) {
     printRecord(records[i])
   }
 }
