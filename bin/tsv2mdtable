@@ -1,0 +1,84 @@
+#!/bin/bash -eu
+
+usage_exit() {
+  cat <<_eof_
+USAGE: $(basename $0) [TSV_FILE...]
+
+Write to stdout the contents of the input TSV files formatted in Markdown.
+_eof_
+  if (($# == 0)); then
+    # user asked for usage information
+    exit 0
+  else
+    # error message was supplied
+    printf '====\n'
+    err_exit "$@"
+  fi
+}
+
+main() {
+  gawk '
+{
+  maxFields = max(maxFields, NF)
+  for (i = 1; i <= NF; ++i) {
+    value = $i
+    maxWidth[i] = max(maxWidth[i], length(value))
+    records[NR][i] = $i
+  }
+}
+
+END {
+  for (i = 1; i <= maxFields; ++i) {
+    header[i] = ""
+    divider[i] = createDivider(maxWidth[i])
+  }
+  printRecord(header)
+  printRecord(divider)
+  numRecords = length(records)
+  for (i = 1; i <= numRecords; ++i) {
+    printRecord(records[i])
+  }
+}
+
+function max(a, b) {
+  return a > b ? a : b;
+}
+
+function createDivider(width,   i, result) {
+  for (i = 1; i <= width; ++i) {
+    result = result "-"
+  }
+  return result
+}
+
+function printRecord(record,   i) {
+  for (i = 1; i <= maxFields; ++i) {
+    printf "| %*s ", maxWidth[i], record[i]
+  }
+  printf "|\n"
+}
+  ' "${TSV_FILES[@]}"
+}
+
+declare -a TSV_FILES
+
+setup() {
+  # TODO: add custom argument parsing
+  local flag
+  while getopts '' flag "$@"; do
+    case $flag in
+      (*) usage_exit 'unrecognized flag: %q\n' "$flag" ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  TSV_FILES=("$@")
+}
+
+err_exit() {
+  printf "$@"
+  exit 1
+}
+
+setup "$@"
+main
