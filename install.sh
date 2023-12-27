@@ -21,6 +21,7 @@ main() {
   f=lib/newscript/template.gawk ; install_file $f $HOME/$f
   f=bin/newscript ; install_file $f $HOME/$f
   f=bin/ytts2srt ; install_file $f $HOME/$f
+  f=bin/tsv2mdtable ; install_file $f $HOME/$f
 }
 
 install_file() {
