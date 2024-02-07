@@ -1,58 +1,59 @@
 # vi: set filetype=sh sw=2 ts=2 et:
-# Bradford's standard bash setup
-# ~/.bashrc should have:
+# Bradfordaj kutimaj bash-agordoj
+# ~/.bashrc enhavu jene:
 #   export B4D_CONFIG=$HOME/src/config
 #   source $B4D_CONFIG/bash/common.bashrc
 
 if [[ ! -v B4D_CONFIG ]]; then
-  echo "B4D_CONFIG is not defined" >&2
+  echo "B4D_CONFIG estas nedifinita" >&2
   return 1
 fi
 if [[ ! -d $B4D_CONFIG ]]; then
-  echo "not a directory: $B4D_CONFIG (\$B4D_CONFIG)"
+  echo "ne estas dosierujo: $B4D_CONFIG (\$B4D_CONFIG)"
   return 1
 fi
 
 export HISTTIMEFORMAT="%F %T	"
 
-function source_dirfiles() {
-  local -r cmd=source_dirfiles
+function plenumu_dosierujon() {
+  local -r cmd=plenumu_dosierujon
   if (( $# != 1 )); then
-    echo >&2 "$cmd: got $# args, expected 1"
+    echo >&2 "$cmd: $# argumentoj ricevitaj; nur 1 atendita"
     return 1
   fi
   local d=$1
   if [[ ! -d $d ]]; then
-    echo >&2 "$cmd: not a directory: $d"
+    echo >&2 "$cmd: ne estas dosierujo: $d"
     return 1
   fi
   local f
-  # Get the files in $d that do not start with a '.'
+  # Trovu la dosierojn el $d, kies nomoj ne ekas per '.'.
   for f in $(find "$d" -maxdepth 1 -type f \! -name '.*'); do
+    # Plenumu ties enhavojn.
     source $f
   done
 }
 
-# includes definitions of
+# inkluzivas la jenajn difinojn
 # * pathmerge
 # * myenv
-source_dirfiles $B4D_CONFIG/bash/functions
+plenumu_dosierujon $B4D_CONFIG/bash/functions
 myenv -q
 
 export PATH=$(pathmerge $HOME/bin $HOME/.local/bin $PATH)
 
-# This method for setting debian_root is copied from the default .bashrc
-# supplied by debian Linux and its derivatives.
+# Ĉi tiu metodo por valorizi debian_root kopiiĝis el la defaŭlta .bashrc
+# proviziita per debian Linuks' kaj ĝiaj idoj.
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# I want to use some fancy logic for creating the value for the prompt,
-# but I don't want to create a function to be called just once.
+# Mi volas uzi komplikan logikon por valorizi la invitilon,
+# sed mi ne volas krei funkcion, kiu ruliĝos nur unufoje.
 PS1=$(
-  # This method for coloring the prompt is adapted from the standard .bashrc
-  # supplied by debian Linux and its derivatives
+  # Ĉi tiu metodo por kolorigi la invitilon adaptiĝis el la kutima .bashrc
+  # proviziita per debian Linuks kaj ĝiaj idoj.
 
   if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
     # We have color support; assume it's compliant with Ecma-48
@@ -83,24 +84,30 @@ PS1=$(
 _EOF_
 )
 
-# pick the best visual editor that is available
+# elekti la plej bonan pervidan redaktilon, kiu disponeblas
 export VISUAL=$(
-cmd_exists() {
+komando_ekzistas() {
   type $1 >&/dev/null
 }
 
-declare editor
-for editor in nvim vim vi ed; do
-  if cmd_exists $editor; then
-    echo $editor
+declare redaktilo
+for redaktilo in nvim vim vi ex ed; do
+  if komando_ekzistas $redaktilo; then
+    echo $redaktilo
     exit 0
   fi
 done
 
-printf >&2 'common.bashrc: no editor found: using %q\n' $editor
-echo $editor
+printf >&2 'common.bashrc: neniu redaktilo troviĝis: defaŭlto estas %q\n' $redaktilo
+echo $redaktilo
 exit 1
 )
 
 export EDITOR=$VISUAL
-alias bed="$EDITOR"
+alias redaktu="$EDITOR"
+
+# Valorizu LANG, ĉar la defaŭlto, "C", malŝaltus uzado de LANGUAGE.
+export LANG=en_US.UTF-8
+# Montru al mi esperantajn mesaĝojn kiel eble plej ofte.
+# Defaŭltu al Usona angla, kiam tio ne eblas.
+export LANGUAGE=eo:en_US.UTF-8
